@@ -37,7 +37,7 @@ Some technical detail about the project:
 
 # Tool usage
 
-If you need Astro documentation, use web search with `site:docs.astro.build` or fetch directly from `https://docs.astro.build` to get the latest docs.
+If you need documentation (Astro, libraries, frameworks), use context7 MCP first: `resolve-library-id` to get the library ID, then `query-docs` with that ID. For Astro, use library ID `/withastro/astro`.
 To find code examples, always use grep_app first.
 Other stuff, you may decide yourself which tool to use.
 
