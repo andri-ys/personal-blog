@@ -1,0 +1,97 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import { getBlogEntryId } from "../../../content.config";
+import { getReadingTimeMinutes, formatReadingTime } from "../../../lib/reading-time";
+import { t } from "../../../lib/translations";
+import type { Locale } from "../../../lib/translations";
+import Header from "../../../components/Header.astro";
+
+export async function getStaticPaths() {
+  const entriesEn = await getCollection("blog", (e) => e.id.endsWith("--en"));
+  const entriesId = await getCollection("blog", (e) => e.id.endsWith("--id"));
+  const paths: { params: { locale: string; slug: string } }[] = [];
+  for (const entry of entriesEn) {
+    paths.push({ params: { locale: "en", slug: entry.id.replace(/--en$/, "") } });
+  }
+  for (const entry of entriesId) {
+    paths.push({ params: { locale: "id", slug: entry.id.replace(/--id$/, "") } });
+  }
+  return paths;
+}
+
+const LOCALES: Locale[] = ["en", "id"];
+
+const { locale, slug } = Astro.params as { locale: string; slug: string };
+if (!LOCALES.includes(locale as Locale)) return Astro.redirect("/id/");
+const lang = locale as Locale;
+const otherLocale = lang === "en" ? "id" : "en";
+
+if (!slug) return Astro.redirect(`/${lang}/`);
+
+const entry = await getEntry("blog", getBlogEntryId(slug, lang));
+if (!entry) return Astro.redirect(`/${lang}/`);
+
+const { Content } = await render(entry);
+const readingTime = getReadingTimeMinutes(entry.body ?? "");
+const dateLocale = lang === "en" ? "en-US" : "id-ID";
+---
+
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{entry.data.title}</title>
+	</head>
+	<body>
+		<Header lang={lang} title="Blog" />
+		<p>
+			<a href={`/${lang}/`} id="back-link" data-slug={slug}>{t("backToBlog", lang)}</a>
+		</p>
+		<script>
+			const params = new URLSearchParams(window.location.search);
+			const from = params.get("from");
+			const slugEl = document.getElementById("back-link")?.dataset.slug ?? "";
+			const anchor = slugEl ? `#post-${slugEl}` : "";
+			const pathname = window.location.pathname;
+			const base = pathname.startsWith("/id/") ? "/id" : "/en";
+			const backLink = document.getElementById("back-link") as HTMLAnchorElement | null;
+			if (backLink) {
+				if (from) {
+					const n = parseInt(from, 10);
+					backLink.href = n > 1 ? `${base}/page/${n}${anchor}` : `${base}/${anchor}`;
+				} else if (anchor) {
+					backLink.href = `${base}/${anchor}`;
+				} else {
+					backLink.href = base + "/";
+				}
+			}
+			const langSwitch = document.getElementById("lang-switch") as HTMLAnchorElement | null;
+			if (langSwitch && from) {
+				const a = langSwitch;
+				a.href = a.href + "?from=" + from;
+			}
+		</script>
+		<article>
+			<h1>{entry.data.title}</h1>
+			<p>
+				<time datetime={entry.data.publishDate.toISOString()}>
+					{entry.data.publishDate.toLocaleDateString(dateLocale, {
+						year: "numeric",
+						month: "long",
+						day: "numeric",
+					})}
+				</time>
+				{" · "}
+				<span>{formatReadingTime(readingTime, lang)}</span>
+				{" · "}
+				<a href={`/${otherLocale}/blog/${slug}`} id="lang-switch">{otherLocale === "en" ? "EN" : "ID"}</a>
+			</p>
+			<p>{entry.data.description}</p>
+			<div>
+				<Content />
+			</div>
+		</article>
+	</body>
+</html>

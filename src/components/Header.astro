@@ -1,0 +1,21 @@
+---
+export interface Props {
+	lang: "en" | "id";
+	title?: string;
+}
+
+const { lang, title = "Blog" } = Astro.props;
+---
+
+<header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ccc;">
+	<h1 style="margin: 0;">
+		<a href="/" style="text-decoration: none; color: inherit;">
+			{title}
+		</a>
+	</h1>
+	<nav>
+		<a href="/id/" style={lang === "id" ? "font-weight: bold;" : ""}>ID</a>
+		{" | "}
+		<a href="/en/" style={lang === "en" ? "font-weight: bold;" : ""}>EN</a>
+	</nav>
+</header>

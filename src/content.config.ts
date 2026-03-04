@@ -5,7 +5,7 @@ import { parseFilename } from "./content/blog-utils";
 
 const blog = defineCollection({
   loader: glob({
-    pattern: ["**/*.en.md", "**/*.id.md"],
+    pattern: "**/*.{en,id}.md",
     base: "./src/content/blog",
     generateId: ({ entry }) => {
       const parsed = parseFilename(entry);

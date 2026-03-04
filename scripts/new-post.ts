@@ -16,7 +16,7 @@ Examples:
   pnpm new-post "My First Post"
   pnpm new-post "My First Post" my-custom-slug
 
-Creates both .en.md and .id.md files in src/content/blog/.
+Creates both .en.md and .id.md files in src/content/blog/[year]/[month]/.
 `;
 
 function sanitizeSlug(input: string): string {
@@ -87,8 +87,12 @@ async function main(): Promise<void> {
   }
 
   const filenameBase = `${timestamp}_${slug}`;
-  const enPath = join(CONTENT_DIR, `${filenameBase}.en.md`);
-  const idPath = join(CONTENT_DIR, `${filenameBase}.id.md`);
+  const now = new Date();
+  const year = String(now.getFullYear());
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const subdir = join(CONTENT_DIR, year, month);
+  const enPath = join(subdir, `${filenameBase}.en.md`);
+  const idPath = join(subdir, `${filenameBase}.id.md`);
 
   if (existsSync(enPath) || existsSync(idPath)) {
     console.error(`Error: Files already exist for slug "${slug}"`);
@@ -99,7 +103,7 @@ async function main(): Promise<void> {
 
   const publishDate = `${timestamp.slice(0, 10)}T${timestamp.slice(11).replace(/-/g, ":")}`;
 
-  await mkdir(CONTENT_DIR, { recursive: true });
+  await mkdir(subdir, { recursive: true });
   await writeFile(enPath, buildContent(id, title, publishDate, "en"));
   await writeFile(idPath, buildContent(id, title, publishDate, "id"));
 

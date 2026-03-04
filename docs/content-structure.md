@@ -1,6 +1,6 @@
 # Content structure
 
-- **Multilingual posts**: One folder for all blog posts. Each post has two files side by side: `YYYY-MM-DD_HH-mm-ss_slug.en.md` and `YYYY-MM-DD_HH-mm-ss_slug.id.md`. Same slug = same post in different languages; timestamp prefix keeps files chronologically ordered in the file explorer.
+- **Multilingual posts**: Content is organized in `src/content/blog/[year]/[month]/`. Each post has two files side by side: `YYYY-MM-DD_HH-mm-ss_slug.en.md` and `YYYY-MM-DD_HH-mm-ss_slug.id.md`. Same slug = same post in different languages; timestamp prefix keeps files chronologically ordered in the file explorer.
 - **Filename format**: `YYYY-MM-DD_HH-mm-ss_slug.lang.md` (e.g. `2025-03-02_14-30-00_my-first-post.en.md`). Parse date and time from filename as default `publishDate`; allow frontmatter override if needed.
 - **URLs**: Slug-only, no date in path (e.g. `/en/blog/my-first-post`, `/id/blog/my-first-post`).
 
@@ -27,4 +27,4 @@
 | `pnpm new-post "My First Post"` | from param | auto from title |
 | `pnpm new-post "My First Post" my-custom-slug` | from param | from param |
 
-Creates both `.en.md` and `.id.md` files. Rename files and update frontmatter when slug/title are finalized.
+Creates both `.en.md` and `.id.md` files in `blog/[year]/[month]/` (e.g. `blog/2026/03/`). Rename files and update frontmatter when slug/title are finalized.
