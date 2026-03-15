@@ -74,6 +74,16 @@ const dateLocale = lang === "en" ? "en-US" : "id-ID";
 			}
 		</script>
 		<article>
+			{entry.data.coverImage && (
+				<img
+					src={entry.data.coverImage}
+					alt=""
+					width="800"
+					height="400"
+					style="width: 100%; max-width: 600px; height: auto; display: block; margin-bottom: 1rem;"
+					loading="eager"
+				/>
+			)}
 			<h1>{entry.data.title}</h1>
 			<p>
 				<time datetime={entry.data.publishDate.toISOString()}>
