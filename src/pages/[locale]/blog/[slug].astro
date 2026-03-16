@@ -3,6 +3,7 @@ import { getCollection, getEntry, render } from "astro:content";
 import { getBlogEntryId, parseBlogEntryId } from "../../../content.config";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
+import CoverImage from "../../../components/CoverImage.astro";
 import { getReadingTimeMinutes, formatReadingTime } from "../../../lib/reading-time";
 import { t } from "../../../lib/translations";
 import type { Locale } from "../../../lib/translations";
@@ -84,13 +85,13 @@ const dateLocale = lang === "en" ? "en-US" : "id-ID";
   <article class="leading-relaxed">
     {entry.data.coverImage && (
       <div class="mb-2">
-        <img
+        <CoverImage
           src={entry.data.coverImage}
-          alt=""
-          width="800"
-          height="400"
-          class="block h-auto w-full"
-          loading="eager"
+          alt={entry.data.title}
+          width={800}
+          height={400}
+          eager={true}
+          className="block h-auto w-full"
         />
       </div>
     )}
@@ -113,56 +114,93 @@ const dateLocale = lang === "en" ? "en-US" : "id-ID";
       <Content />
     </div>
   </article>
+  <div class="mt-8 border-t border-gray-200 dark:border-gray-700" />
   {(newerSlug || olderSlug) && (
-    <nav class="mt-8 flex items-stretch justify-between gap-3 text-sm text-gray-600 dark:text-gray-400">
-      {newerSlug ? (
-        <a
-          href={`/${lang}/blog/${newerSlug}`}
-          class="flex flex-1 flex-col rounded border border-gray-200 px-3 py-2 text-left hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
-        >
-          <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
-            {t("previous", lang)}
-          </span>
-          <span class="truncate">{newerEntry!.data.title}</span>
+    <nav class="mt-8 space-y-2 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+      <div class="grid grid-cols-3 items-center gap-2">
+        <div class="flex justify-start">
+          {newerSlug && (
+            <a
+              href={`/${lang}/blog/${newerSlug}`}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+            <span class="sr-only">{t("previous", lang)}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </a>
+        )}
+        </div>
+        <div class="flex justify-center">
+          <a
+            href={`/${lang}/`}
+            id="back-link"
+            data-slug={slug}
+            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+          >
+          <span class="sr-only">{t("backToBlog", lang)}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 11L12 3l9 8" />
+            <path d="M5 10v10h14V10" />
+          </svg>
         </a>
-      ) : (
-        <span class="flex-1" />
-      )}
-      <a
-        href={`/${lang}/`}
-        id="back-link"
-        data-slug={slug}
-        class="inline-flex items-center justify-center rounded-md border border-gray-300 px-3 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
-      >
-        <span class="sr-only">{t("backToBlog", lang)}</span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M3 11L12 3l9 8" />
-          <path d="M5 10v10h14V10" />
-        </svg>
-      </a>
-      {olderSlug && olderEntry ? (
-        <a
-          href={`/${lang}/blog/${olderSlug}`}
-          class="flex flex-1 flex-col items-end rounded border border-gray-200 px-3 py-2 text-right hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
-        >
-          <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
-            {t("next", lang)}
+        </div>
+        <div class="flex justify-end">
+          {olderSlug && olderEntry && (
+            <a
+              href={`/${lang}/blog/${olderSlug}`}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+            <span class="sr-only">{t("next", lang)}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </a>
+        )}
+        </div>
+      </div>
+      {(newerSlug || olderSlug) && (
+        <div class="flex items-start justify-between gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:text-xs">
+          <span class="inline-block max-w-[45%] truncate">
+            {newerEntry?.data.title}
           </span>
-          <span class="truncate">{olderEntry.data.title}</span>
-        </a>
-      ) : (
-        <span class="flex-1" />
+          <span class="inline-block max-w-[45%] truncate text-right">
+            {olderEntry?.data.title}
+          </span>
+        </div>
       )}
     </nav>
   )}

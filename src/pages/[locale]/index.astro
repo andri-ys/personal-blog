@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import { parseBlogEntryId } from "../../content.config";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
+import CoverImage from "../../components/CoverImage.astro";
 import { getPageSlice, getTotalPages } from "../../lib/pagination";
 import { getReadingTimeMinutes, formatReadingTime } from "../../lib/reading-time";
 import { t, tPageOf } from "../../lib/translations";
@@ -44,13 +45,12 @@ const title = lang === "en" ? "Astro Blog" : "Blog Astro";
         <li id={`post-${slug}`} class="border-b border-gray-200 pb-6 dark:border-gray-700">
           <a href={`/${lang}/blog/${slug}${currentPage > 1 ? `?from=${currentPage}` : ""}`} class="text-inherit no-underline hover:underline">
             {cover && (
-              <img
+              <CoverImage
                 src={cover}
-                alt=""
-                width="800"
-                height="400"
-                class="mb-2 block h-auto w-full"
-                loading="lazy"
+                alt={entry.data.title}
+                width={800}
+                height={400}
+                className="mb-2 block h-auto w-full"
               />
             )}
             <strong>{entry.data.title}</strong>
@@ -74,34 +74,89 @@ const title = lang === "en" ? "Astro Blog" : "Blog Astro";
     })}
   </ul>
   {totalPages > 1 && (
-    <nav class="mt-8 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-3 text-sm text-gray-600 dark:text-gray-400">
-      <div>
-        {currentPage > 1 && (
-          <a
-            href={currentPage === 2 ? `/${lang}/` : `/${lang}/page/${currentPage - 1}`}
-            class="flex max-w-[10rem] flex-col rounded border border-gray-200 px-3 py-2 text-left hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+    <nav class="mt-8 space-y-2 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+      <div class="grid grid-cols-3 items-center gap-2">
+        <div class="flex justify-start">
+          {currentPage > 1 && (
+            <a
+              href={currentPage === 2 ? `/${lang}/` : `/${lang}/page/${currentPage - 1}`}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+              <span class="sr-only">{t("previous", lang)}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </a>
+          )}
+        </div>
+        <div class="flex justify-center">
+          <button
+            type="button"
+            id="page-picker"
+            data-lang={lang}
+            data-current={currentPage}
+            data-total={totalPages}
+            class="inline-flex h-9 items-center justify-center rounded-md border border-gray-200 px-3 text-center text-xs font-medium uppercase tracking-wide text-gray-500 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800"
           >
-            <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
-              {t("previous", lang)}
-            </span>
-          </a>
-        )}
-      </div>
-      <span class="self-center px-3 py-2 text-center text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-        {tPageOf(currentPage, totalPages, lang)}
-      </span>
-      <div class="text-right">
-        {currentPage < totalPages && (
-          <a
-            href={`/${lang}/page/${currentPage + 1}`}
-            class="ml-auto flex max-w-[10rem] flex-col items-end rounded border border-gray-200 px-3 py-2 text-right hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
-          >
-            <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
-              {t("next", lang)}
-            </span>
-          </a>
-        )}
+            {tPageOf(currentPage, totalPages, lang)}
+          </button>
+        </div>
+        <div class="flex justify-end">
+          {currentPage < totalPages && (
+            <a
+              href={`/${lang}/page/${currentPage + 1}`}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+              <span class="sr-only">{t("next", lang)}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </a>
+          )}
+        </div>
       </div>
     </nav>
   )}
+  <script>
+    const picker = document.getElementById("page-picker") as HTMLButtonElement | null;
+    if (picker) {
+      picker.addEventListener("click", () => {
+        const total = Number(picker.dataset.total || "1");
+        const lang = (picker.dataset.lang || "en") as "en" | "id";
+        const current = Number(picker.dataset.current || "1");
+        const label =
+          lang === "id"
+            ? `Ke halaman (1-${total})`
+            : `Go to page (1-${total})`;
+        const input = window.prompt(label, String(current));
+        if (!input) return;
+        const n = Number(input);
+        if (!Number.isFinite(n) || n < 1 || n > total) return;
+        const target = n === 1 ? `/${lang}/` : `/${lang}/page/${n}`;
+        window.location.href = target;
+      });
+    }
+  </script>
 </BaseLayout>
