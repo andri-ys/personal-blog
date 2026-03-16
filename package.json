@@ -12,7 +12,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "astro": "^5.16.16"
+    "@tailwindcss/vite": "^4.2.1",
+    "astro": "^5.16.16",
+    "tailwindcss": "^4.2.1"
   },
   "devDependencies": {
     "@types/node": "^25.3.3",

@@ -1,5 +1,13 @@
 {
   "extends": "./node_modules/astro/tsconfigs/strict.json",
-  "include": [".astro/types.d.ts", "**/*"],
+  "compilerOptions": {
+    "jsxImportSource": "astro",
+    "baseUrl": ".",
+    "paths": {
+      "astro/jsx-runtime": ["./node_modules/astro/jsx-runtime.d.ts"],
+      "astro/astro-jsx": ["./node_modules/astro/astro-jsx.d.ts"]
+    }
+  },
+  "include": [".astro/types.d.ts", "env.d.ts", "**/*"],
   "exclude": ["dist"]
 }

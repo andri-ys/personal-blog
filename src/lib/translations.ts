@@ -8,6 +8,8 @@ const translations = {
   previous: { en: "← Previous", id: "← Sebelumnya" },
   next: { en: "Next →", id: "Selanjutnya →" },
   backToBlog: { en: "← Back to Blog", id: "← Kembali ke Blog" },
+  themeDark: { en: "Dark", id: "Gelap" },
+  themeLight: { en: "Light", id: "Terang" },
   pageOf: {
     en: (n: number, total: number) => `Page ${n} of ${total}`,
     id: (n: number, total: number) => `Halaman ${n} dari ${total}`,
@@ -16,7 +18,11 @@ const translations = {
   minRead: { en: "min read", id: "menit baca" },
 } as const;
 
-export function t(key: keyof typeof translations, locale: Locale) {
+type StringKey = Exclude<keyof typeof translations, "pageOf">;
+
+export function t(key: "pageOf", locale: Locale): (n: number, total: number) => string;
+export function t(key: StringKey, locale: Locale): string;
+export function t(key: keyof typeof translations, locale: Locale): string | ((n: number, total: number) => string) {
   const value = translations[key][locale];
   return typeof value === "function" ? value : value;
 }

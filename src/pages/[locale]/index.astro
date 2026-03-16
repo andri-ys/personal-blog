@@ -1,11 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import { parseBlogEntryId } from "../../content.config";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Header from "../../components/Header.astro";
 import { getPageSlice, getTotalPages } from "../../lib/pagination";
 import { getReadingTimeMinutes, formatReadingTime } from "../../lib/reading-time";
 import { t, tPageOf } from "../../lib/translations";
 import type { Locale } from "../../lib/translations";
-import Header from "../../components/Header.astro";
 
 const LOCALES: Locale[] = ["en", "id"];
 
@@ -28,74 +29,79 @@ const entries = getPageSlice(sorted, currentPage);
 const totalPages = getTotalPages(sorted.length);
 
 const dateLocale = lang === "en" ? "en-US" : "id-ID";
+const title = lang === "en" ? "Astro Blog" : "Blog Astro";
 ---
 
-<html lang={lang}>
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{lang === "en" ? "Astro Blog" : "Blog Astro"}</title>
-	</head>
-	<body>
-		<Header lang={lang} title="Blog" />
-		<ul style="list-style: none; padding: 0;">
-			{entries.map((entry) => {
-				const parsed = parseBlogEntryId(entry.id);
-				if (!parsed) return null;
-				const { slug } = parsed;
-				const cover = entry.data.coverImage;
-				return (
-					<li id={`post-${slug}`} style="margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
-						<a href={`/${lang}/blog/${slug}${currentPage > 1 ? `?from=${currentPage}` : ""}`}>
-							{cover && (
-								<img
-									src={cover}
-									alt=""
-									width="800"
-									height="400"
-									style="width: 100%; max-width: 600px; height: auto; display: block; margin-bottom: 0.5rem;"
-									loading="lazy"
-								/>
-							)}
-							<strong>{entry.data.title}</strong>
-						</a>
-						<p>
-							<time datetime={entry.data.publishDate.toISOString()}>
-								{entry.data.publishDate.toLocaleDateString(dateLocale, {
-									year: "numeric",
-									month: "short",
-									day: "numeric",
-								})}
-							</time>
-							{" · "}
-							<span>{formatReadingTime(getReadingTimeMinutes(entry.body ?? ""), lang)}</span>
-							{" · "}
-							<a href={`/${otherLocale}/blog/${slug}${currentPage > 1 ? `?from=${currentPage}` : ""}`}>{otherLocale === "en" ? "EN" : "ID"}</a>
-						</p>
-						<p>{entry.data.description}</p>
-					</li>
-				);
-			})}
-		</ul>
-		{totalPages > 1 && (
-			<nav>
-				{currentPage > 1 && (
-					<a href={currentPage === 2 ? `/${lang}/` : `/${lang}/page/${currentPage - 1}`}>
-						{t("previous", lang)}
-					</a>
-				)}
-				{" "}
-				<span>{tPageOf(currentPage, totalPages, lang)}</span>
-				{currentPage < totalPages && (
-					<>
-						{" "}
-						<a href={`/${lang}/page/${currentPage + 1}`}>{t("next", lang)}</a>
-					</>
-				)}
-			</nav>
-		)}
-	</body>
-</html>
+<BaseLayout title={title} lang={lang}>
+  <Header lang={lang} title="Blog" currentPath={Astro.url.pathname} />
+  <ul class="list-none space-y-8 p-0">
+    {entries.map((entry) => {
+      const parsed = parseBlogEntryId(entry.id);
+      if (!parsed) return null;
+      const { slug } = parsed;
+      const cover = entry.data.coverImage;
+      return (
+        <li id={`post-${slug}`} class="border-b border-gray-200 pb-6 dark:border-gray-700">
+          <a href={`/${lang}/blog/${slug}${currentPage > 1 ? `?from=${currentPage}` : ""}`} class="text-inherit no-underline hover:underline">
+            {cover && (
+              <img
+                src={cover}
+                alt=""
+                width="800"
+                height="400"
+                class="mb-2 block h-auto w-full"
+                loading="lazy"
+              />
+            )}
+            <strong>{entry.data.title}</strong>
+          </a>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <time datetime={entry.data.publishDate.toISOString()}>
+              {entry.data.publishDate.toLocaleDateString(dateLocale, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </time>
+            {" · "}
+            <span>{formatReadingTime(getReadingTimeMinutes(entry.body ?? ""), lang)}</span>
+            {" · "}
+            <a href={`/${otherLocale}/blog/${slug}${currentPage > 1 ? `?from=${currentPage}` : ""}`} class="text-gray-600 hover:underline dark:text-gray-400 dark:hover:text-gray-200">{otherLocale === "en" ? "EN" : "ID"}</a>
+          </p>
+          <p class="mt-1 text-gray-600 dark:text-gray-400">{entry.data.description}</p>
+        </li>
+      );
+    })}
+  </ul>
+  {totalPages > 1 && (
+    <nav class="mt-8 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-3 text-sm text-gray-600 dark:text-gray-400">
+      <div>
+        {currentPage > 1 && (
+          <a
+            href={currentPage === 2 ? `/${lang}/` : `/${lang}/page/${currentPage - 1}`}
+            class="flex max-w-[10rem] flex-col rounded border border-gray-200 px-3 py-2 text-left hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+          >
+            <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
+              {t("previous", lang)}
+            </span>
+          </a>
+        )}
+      </div>
+      <span class="self-center px-3 py-2 text-center text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        {tPageOf(currentPage, totalPages, lang)}
+      </span>
+      <div class="text-right">
+        {currentPage < totalPages && (
+          <a
+            href={`/${lang}/page/${currentPage + 1}`}
+            class="ml-auto flex max-w-[10rem] flex-col items-end rounded border border-gray-200 px-3 py-2 text-right hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+          >
+            <span class="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500">
+              {t("next", lang)}
+            </span>
+          </a>
+        )}
+      </div>
+    </nav>
+  )}
+</BaseLayout>
