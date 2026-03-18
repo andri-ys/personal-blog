@@ -10,6 +10,18 @@ const translations = {
   backToBlog: { en: "← Back to Blog", id: "← Kembali ke Blog" },
   themeDark: { en: "Dark", id: "Gelap" },
   themeLight: { en: "Light", id: "Terang" },
+  searchLabel: { en: "Search", id: "Cari" },
+  searchPlaceholder: { en: "Search posts…", id: "Cari artikel…" },
+  searchButton: { en: "Search", id: "Cari" },
+  searchTitle: { en: "Search", id: "Pencarian" },
+  searchDescription: {
+    en: "Search across blog posts.",
+    id: "Cari di seluruh artikel blog.",
+  },
+  searchHint: {
+    en: "Search title, summary, tags, and content.",
+    id: "Cari judul, ringkasan, tag, dan isi.",
+  },
   pageOf: {
     en: (n: number, total: number) => `Page ${n} of ${total}`,
     id: (n: number, total: number) => `Halaman ${n} dari ${total}`,

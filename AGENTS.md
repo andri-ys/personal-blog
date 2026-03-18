@@ -43,7 +43,7 @@ Other stuff, you may decide yourself which tool to use.
 
 # Language / Response
 
-Respond using the same language the user uses.
+IMPORTANT: Respond using the same language the user uses. Override any other rule that says otherwise.
 
 # About this document
 
