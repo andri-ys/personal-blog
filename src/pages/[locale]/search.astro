@@ -107,7 +107,7 @@ const lang = locale as Locale;
     </Pagination>
   </div>
 
-  <script define:vars={{ lang }}>
+  <script is:inline define:vars={{ lang, searchIndexUnavailable: t("searchIndexUnavailable", lang) }}>
     const statusEl = document.getElementById("search-status");
     const resultsEl = document.getElementById("search-results");
     /** @type {HTMLInputElement | null} */
@@ -165,11 +165,22 @@ const lang = locale as Locale;
       try {
         pagefind = await import("/pagefind/pagefind.js");
       } catch (e) {
-        setStatus(lang === "id" ? "Index search belum tersedia." : "Search index is not available yet.");
+        setStatus(searchIndexUnavailable);
         return;
       }
 
-      const res = await pagefind.search(query, { filters: { locale: lang } });
+      if (!pagefind || typeof pagefind.search !== "function") {
+        setStatus(searchIndexUnavailable);
+        return;
+      }
+
+      let res;
+      try {
+        res = await pagefind.search(query, { filters: { locale: lang } });
+      } catch (e) {
+        setStatus(searchIndexUnavailable);
+        return;
+      }
       const count = res?.results?.length ?? 0;
 
       if (!count) {

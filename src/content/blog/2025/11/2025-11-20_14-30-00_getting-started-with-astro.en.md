@@ -9,6 +9,7 @@ draft: false
 # tags: []
 coverImage: "https://picsum.photos/seed/getting-started-with-astro/800/400"
 # updatedDate: ""
+authorId: "andri"
 ---
 
 Astro is a modern static site generator that lets you build faster websites with less client-side JavaScript. It uses a content-first approach and supports multiple frameworks out of the box.

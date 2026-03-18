@@ -9,6 +9,7 @@ draft: false
 # tags: []
 coverImage: "https://picsum.photos/seed/getting-started-with-astro/800/400"
 # updatedDate: ""
+authorId: "andri"
 ---
 
 Astro adalah generator situs statis modern yang memungkinkan Anda membangun situs web lebih cepat dengan lebih sedikit JavaScript di sisi klien. Astro menggunakan pendekatan konten-first dan mendukung berbagai framework.

@@ -22,6 +22,7 @@ const blog = defineCollection({
     tags: z.array(z.string()).optional(),
     coverImage: z.string().optional(),
     updatedDate: z.coerce.date().optional(),
+    authorId: z.literal("andri"),
   }),
 });
 

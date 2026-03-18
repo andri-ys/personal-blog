@@ -9,6 +9,7 @@ draft: false
 # tags: []
 coverImage: "https://picsum.photos/seed/understanding-content-collections/800/400"
 # updatedDate: ""
+authorId: "andri"
 ---
 
 Content Collections in Astro help you manage Markdown, MDX, and data files with type safety. Define a schema with Zod and Astro validates your frontmatter at build time.

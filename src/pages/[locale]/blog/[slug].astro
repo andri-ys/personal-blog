@@ -6,6 +6,7 @@ import Header from "../../../components/Header.astro";
 import CoverImage from "../../../components/CoverImage.astro";
 import { getReadingTimeMinutes, formatReadingTime } from "../../../lib/reading-time";
 import { t } from "../../../lib/translations";
+import { getAuthor } from "../../../lib/authors";
 import type { Locale } from "../../../lib/translations";
 
 export async function getStaticPaths() {
@@ -54,6 +55,7 @@ const olderSlug = olderParsed?.slug;
 const { Content } = await render(entry);
 const readingTime = getReadingTimeMinutes(entry.body ?? "");
 const dateLocale = lang === "en" ? "en-US" : "id-ID";
+const author = getAuthor((entry.data as any).authorId);
 ---
 
 <BaseLayout title={entry.data.title} lang={lang} description={entry.data.description}>
@@ -76,11 +78,6 @@ const dateLocale = lang === "en" ? "en-US" : "id-ID";
         backLink.href = base + "/";
       }
     }
-    const langSwitch = document.getElementById("lang-switch") as HTMLAnchorElement | null;
-    if (langSwitch && from) {
-      const a = langSwitch;
-      a.href = a.href + "?from=" + from;
-    }
   </script>
   <article class="leading-relaxed" data-pagefind-body>
     <div data-pagefind-filter={`locale:${lang}`}></div>
@@ -96,25 +93,41 @@ const dateLocale = lang === "en" ? "en-US" : "id-ID";
         />
       </div>
     )}
-    <h1 class="mb-2 text-2xl font-semibold" data-pagefind-meta="title">
+    <h1 class="mb-1 text-2xl font-semibold" data-pagefind-meta="title">
       {entry.data.title}
     </h1>
-    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-      <time datetime={entry.data.publishDate.toISOString()}>
-        {entry.data.publishDate.toLocaleDateString(dateLocale, {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}
-      </time>
-      {" · "}
-      <span>{formatReadingTime(readingTime, lang)}</span>
-      {" · "}
-      <a href={`/${otherLocale}/blog/${slug}`} id="lang-switch" class="text-gray-600 hover:underline dark:text-gray-400 dark:hover:text-gray-200">{otherLocale === "en" ? "EN" : "ID"}</a>
-    </p>
-    <p class="mb-6 text-gray-600 dark:text-gray-400" data-pagefind-meta="description">
+    <p class="mb-3 text-gray-600 dark:text-gray-400" data-pagefind-meta="description">
       {entry.data.description}
     </p>
+    {author && (
+      <div class="mb-6 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+        <img
+          src={author.avatarUrl}
+          alt={author.name}
+          width="40"
+          height="40"
+          loading="lazy"
+          class="h-10 w-10 rounded-full object-cover"
+        />
+        <div>
+          <p class="font-semibold">
+            {author.name}
+          </p>
+          <p>
+            <time datetime={entry.data.publishDate.toISOString()}>
+              {entry.data.publishDate.toLocaleDateString(dateLocale, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+            {" · "}
+            <span>{formatReadingTime(readingTime, lang)}</span>
+          </p>
+        </div>
+      </div>
+    )}
+    <div class="mb-6" />
     {entry.data.tags && entry.data.tags.length > 0 && (
       <div class="sr-only" aria-hidden="true">
         {entry.data.tags.map((tag) => (

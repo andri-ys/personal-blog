@@ -9,6 +9,7 @@ draft: false
 # tags: []
 coverImage: "https://picsum.photos/seed/lorem-ipsum-dolor-sit-amet/800/400"
 # updatedDate: ""
+authorId: "andri"
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.

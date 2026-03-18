@@ -9,6 +9,7 @@ draft: false
 # tags: []
 coverImage: "https://picsum.photos/seed/understanding-content-collections/800/400"
 # updatedDate: ""
+authorId: "andri"
 ---
 
 Content Collections di Astro membantu Anda mengelola file Markdown, MDX, dan data dengan keamanan tipe. Definisikan skema dengan Zod dan Astro memvalidasi frontmatter saat build.

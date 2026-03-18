@@ -22,6 +22,10 @@ const translations = {
     en: "Search title, summary, tags, and content.",
     id: "Cari judul, ringkasan, tag, dan isi.",
   },
+  searchIndexUnavailable: {
+    en: "Search index is not available yet.",
+    id: "Index pencarian belum tersedia.",
+  },
   pageOf: {
     en: (n: number, total: number) => `Page ${n} of ${total}`,
     id: (n: number, total: number) => `Halaman ${n} dari ${total}`,
