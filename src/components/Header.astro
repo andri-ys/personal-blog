@@ -1,5 +1,5 @@
 ---
-import { t } from '../lib/translations';
+import { t, tBlogHeaderTitle } from '../lib/translations';
 import type { Locale } from '../lib/translations';
 
 export interface Props {
@@ -11,7 +11,7 @@ export interface Props {
   currentUrl?: URL;
 }
 
-const { lang, title = "Blog", currentPath, currentUrl } = Astro.props;
+const { lang, title = tBlogHeaderTitle(lang), currentPath, currentUrl } = Astro.props;
 
 function swapLocaleInPath(pathname: string, locale: Locale): string {
   return pathname.replace(/^\/(id|en)(\/|$)/, `/${locale}$2`);

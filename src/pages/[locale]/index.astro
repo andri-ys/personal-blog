@@ -7,7 +7,7 @@ import CoverImage from "../../components/CoverImage.astro";
 import Pagination from "../../components/Pagination.astro";
 import { getPageSlice, getTotalPages } from "../../lib/pagination";
 import { getReadingTimeMinutes, formatReadingTime } from "../../lib/reading-time";
-import { t, tPageOf } from "../../lib/translations";
+import { t, tBlogHeaderTitle, tBlogSiteTitle, tPageOf } from "../../lib/translations";
 import { getAuthor } from "../../lib/authors";
 import type { Locale } from "../../lib/translations";
 
@@ -35,11 +35,11 @@ const entries = getPageSlice(sorted, currentPage);
 const totalPages = getTotalPages(sorted.length);
 
 const dateLocale = lang === "en" ? "en-US" : "id-ID";
-const title = lang === "en" ? "Astro Blog" : "Blog Astro";
+const title = tBlogSiteTitle(lang);
 ---
 
 <BaseLayout title={title} lang={lang}>
-  <Header lang={lang} title="Blog" currentUrl={Astro.url} />
+  <Header lang={lang} title={tBlogHeaderTitle(lang)} currentUrl={Astro.url} />
   <ul class="list-none space-y-8 p-0">
     {entries.map((entry) => {
       const parsed = parseBlogEntryId(entry.id);

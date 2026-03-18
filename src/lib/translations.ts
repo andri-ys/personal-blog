@@ -4,6 +4,15 @@
 
 export type Locale = "en" | "id";
 
+const blogTranslations = {
+  siteTitle: { en: "Astro Blog", id: "Blog Astro" },
+  headerTitle: { en: "Blog", id: "Blog" },
+  pageTitle: {
+    en: (page: number) => `Blog — Page ${page}`,
+    id: (page: number) => `Blog — Halaman ${page}`,
+  },
+} as const;
+
 const translations = {
   previous: { en: "← Previous", id: "← Sebelumnya" },
   next: { en: "Next →", id: "Selanjutnya →" },
@@ -45,6 +54,18 @@ export function t(key: keyof typeof translations, locale: Locale): string | ((n:
 
 export function tPageOf(n: number, total: number, locale: Locale): string {
   return translations.pageOf[locale](n, total);
+}
+
+export function tBlogSiteTitle(locale: Locale): string {
+  return blogTranslations.siteTitle[locale];
+}
+
+export function tBlogHeaderTitle(locale: Locale): string {
+  return blogTranslations.headerTitle[locale];
+}
+
+export function tBlogPageTitle(page: number, locale: Locale): string {
+  return blogTranslations.pageTitle[locale](page);
 }
 
 export function tReadingTime(minutes: number, locale: Locale): string {

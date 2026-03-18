@@ -5,7 +5,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
 import CoverImage from "../../../components/CoverImage.astro";
 import { getReadingTimeMinutes, formatReadingTime } from "../../../lib/reading-time";
-import { t } from "../../../lib/translations";
+import { t, tBlogHeaderTitle } from "../../../lib/translations";
 import { getAuthor } from "../../../lib/authors";
 import type { Locale } from "../../../lib/translations";
 
@@ -66,7 +66,7 @@ const author = getAuthor(data.authorId);
 ---
 
 <BaseLayout title={data.title} lang={lang} description={data.description}>
-  <Header lang={lang} title="Blog" currentUrl={Astro.url} />
+  <Header lang={lang} title={tBlogHeaderTitle(lang)} currentUrl={Astro.url} />
   <script>
     const params = new URLSearchParams(window.location.search);
     const from = params.get("from");

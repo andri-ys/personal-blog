@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Header from "../../components/Header.astro";
 import Pagination from "../../components/Pagination.astro";
 import type { Locale } from "../../lib/translations";
-import { t, tPageOf } from "../../lib/translations";
+import { t, tBlogHeaderTitle, tPageOf } from "../../lib/translations";
 
 const LOCALES: Locale[] = ["en", "id"];
 
@@ -17,7 +17,7 @@ const lang = locale as Locale;
 ---
 
 <BaseLayout title={t("searchTitle", lang)} lang={lang} description={t("searchDescription", lang)}>
-  <Header lang={lang} title="Blog" currentUrl={Astro.url} />
+  <Header lang={lang} title={tBlogHeaderTitle(lang)} currentUrl={Astro.url} />
 
   <div class="mb-6">
     <h2 class="m-0 text-lg font-semibold">{t("searchTitle", lang)}</h2>
