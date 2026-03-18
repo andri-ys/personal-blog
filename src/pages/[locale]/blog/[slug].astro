@@ -1,6 +1,6 @@
 ---
 import { getCollection, getEntry, render } from "astro:content";
-import { getBlogEntryId, parseBlogEntryId } from "../../../content.config";
+import { getBlogEntryId, parseBlogEntryId, type BlogData } from "../../../content.config";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Header from "../../../components/Header.astro";
 import CoverImage from "../../../components/CoverImage.astro";
@@ -37,7 +37,11 @@ if (!entry) return Astro.redirect(`/${lang}/`);
 const allEntries = await getCollection("blog");
 const sameLocaleEntries = allEntries
   .filter((e) => e.id.endsWith(`--${lang}`))
-  .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime());
+  .sort(
+    (a, b) =>
+      ((b.data as any).publishDate as Date).getTime() -
+      ((a.data as any).publishDate as Date).getTime()
+  );
 
 const currentIndex = sameLocaleEntries.findIndex((e) => e.id === entry.id);
 const newerEntry = currentIndex > 0 ? sameLocaleEntries[currentIndex - 1] : undefined;
@@ -52,13 +56,16 @@ const olderParsed = olderEntry ? parseBlogEntryId(olderEntry.id) : null;
 const newerSlug = newerParsed?.slug;
 const olderSlug = olderParsed?.slug;
 
-const { Content } = await render(entry);
+const { Content } = await render(entry as any);
+const data = entry.data as BlogData;
+const newerData = newerEntry ? (newerEntry.data as BlogData) : undefined;
+const olderData = olderEntry ? (olderEntry.data as BlogData) : undefined;
 const readingTime = getReadingTimeMinutes(entry.body ?? "");
 const dateLocale = lang === "en" ? "en-US" : "id-ID";
-const author = getAuthor((entry.data as any).authorId);
+const author = getAuthor(data.authorId);
 ---
 
-<BaseLayout title={entry.data.title} lang={lang} description={entry.data.description}>
+<BaseLayout title={data.title} lang={lang} description={data.description}>
   <Header lang={lang} title="Blog" currentUrl={Astro.url} />
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -81,23 +88,11 @@ const author = getAuthor((entry.data as any).authorId);
   </script>
   <article class="leading-relaxed" data-pagefind-body>
     <div data-pagefind-filter={`locale:${lang}`}></div>
-    {entry.data.coverImage && (
-      <div class="mb-2">
-        <CoverImage
-          src={entry.data.coverImage}
-          alt={entry.data.title}
-          width={800}
-          height={400}
-          eager={true}
-          className="block h-auto w-full"
-        />
-      </div>
-    )}
     <h1 class="mb-1 text-2xl font-semibold" data-pagefind-meta="title">
-      {entry.data.title}
+      {data.title}
     </h1>
     <p class="mb-3 text-gray-600 dark:text-gray-400" data-pagefind-meta="description">
-      {entry.data.description}
+      {data.description}
     </p>
     {author && (
       <div class="mb-6 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
@@ -114,8 +109,8 @@ const author = getAuthor((entry.data as any).authorId);
             {author.name}
           </p>
           <p>
-            <time datetime={entry.data.publishDate.toISOString()}>
-              {entry.data.publishDate.toLocaleDateString(dateLocale, {
+            <time datetime={data.publishDate.toISOString()}>
+              {data.publishDate.toLocaleDateString(dateLocale, {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -127,10 +122,22 @@ const author = getAuthor((entry.data as any).authorId);
         </div>
       </div>
     )}
+    {data.coverImage && (
+      <div class="mb-6">
+        <CoverImage
+          src={data.coverImage}
+          alt={data.title}
+          width={800}
+          height={400}
+          eager={true}
+          className="block h-auto w-full"
+        />
+      </div>
+    )}
     <div class="mb-6" />
-    {entry.data.tags && entry.data.tags.length > 0 && (
+    {data.tags && data.tags.length > 0 && (
       <div class="sr-only" aria-hidden="true">
-        {entry.data.tags.map((tag) => (
+        {data.tags.map((tag: string) => (
           <span data-pagefind-filter="tag">{tag}</span>
         ))}
       </div>
@@ -220,10 +227,10 @@ const author = getAuthor((entry.data as any).authorId);
       {(newerSlug || olderSlug) && (
         <div class="flex items-start justify-between gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:text-xs">
           <span class="inline-block max-w-[45%] truncate">
-            {newerEntry?.data.title}
+            {newerData?.title}
           </span>
           <span class="inline-block max-w-[45%] truncate text-right">
-            {olderEntry?.data.title}
+            {olderData?.title}
           </span>
         </div>
       )}

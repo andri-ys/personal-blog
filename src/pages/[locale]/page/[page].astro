@@ -43,7 +43,10 @@ if (currentPage < 2) return Astro.redirect(`/${lang}/`);
 const allEntries = await getCollection("blog");
 const sorted = allEntries
   .filter((e) => e.id.endsWith(`--${lang}`))
-  .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime());
+  .sort(
+    (a, b) =>
+      (b.data as any).publishDate.getTime() - (a.data as any).publishDate.getTime()
+  );
 
 const totalPages = getTotalPages(sorted.length);
 if (currentPage > totalPages) return Astro.redirect(`/${lang}/`);
@@ -60,51 +63,59 @@ const title = lang === "en" ? `Blog — Page ${currentPage}` : `Blog — Halaman
       const parsed = parseBlogEntryId(entry.id);
       if (!parsed) return null;
       const { slug } = parsed;
-      const cover = entry.data.coverImage;
-       const author = getAuthor((entry.data as any).authorId);
+      const data = entry.data as any;
+      const cover = data.coverImage as string | undefined;
+       const author = getAuthor(data.authorId);
       return (
         <li id={`post-${slug}`} class="border-b border-gray-200 pb-6 dark:border-gray-700">
-          <a href={`/${lang}/blog/${slug}?from=${currentPage}`} class="text-inherit no-underline hover:underline">
-            {cover && (
-              <CoverImage
-                src={cover}
-                alt={entry.data.title}
-                width={800}
-                height={400}
-                className="mb-2 block h-auto w-full"
-              />
-            )}
-            <strong>{entry.data.title}</strong>
-          </a>
-          <p class="mt-1 text-gray-600 dark:text-gray-400">{entry.data.description}</p>
-          {author && (
-            <div class="mt-2 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-              <img
-                src={author.avatarUrl}
-                alt={author.name}
-                width="32"
-                height="32"
-                loading="lazy"
-                class="h-8 w-8 rounded-full object-cover"
-              />
-              <div>
-                <p class="font-semibold">
-                  {author.name}
-                </p>
-                <p>
-                  <time datetime={entry.data.publishDate.toISOString()}>
-                    {entry.data.publishDate.toLocaleDateString(dateLocale, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </time>
-                  {" · "}
-                  <span>{formatReadingTime(getReadingTimeMinutes(entry.body ?? ""), lang)}</span>
-                </p>
+          <a
+            href={`/${lang}/blog/${slug}?from=${currentPage}`}
+            class="block text-inherit no-underline hover:underline"
+          >
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div class="min-w-0">
+                <strong class="block">{data.title}</strong>
+                <p class="mt-1 text-gray-600 dark:text-gray-400">{data.description}</p>
+                {author && (
+                  <div class="mt-2 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                    <img
+                      src={author.avatarUrl}
+                      alt={author.name}
+                      width="32"
+                      height="32"
+                      loading="lazy"
+                      class="h-8 w-8 rounded-full object-cover"
+                    />
+                    <div>
+                      <p class="font-semibold">
+                        {author.name}
+                      </p>
+                      <p>
+                        <time datetime={data.publishDate.toISOString()}>
+                          {data.publishDate.toLocaleDateString(dateLocale, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </time>
+                        {" · "}
+                        <span>{formatReadingTime(getReadingTimeMinutes(entry.body ?? ""), lang)}</span>
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
+              {cover && (
+                <CoverImage
+                  src={cover}
+                  alt={data.title}
+                  width={480}
+                  height={240}
+                  className="block w-full shrink-0 rounded-md object-cover sm:w-52 md:w-64 aspect-[2/1]"
+                />
+              )}
             </div>
-          )}
+          </a>
         </li>
       );
     })}
