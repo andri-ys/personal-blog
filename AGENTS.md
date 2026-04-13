@@ -1,13 +1,29 @@
 # Overview
 
-We are starting a new project using Astro
+We are starting a new project using Astro.
+
+## Vision (north star)
+
+Grow this into your **primary place for public interaction**: a site that feels like **social media** (e.g. **like, comment, share**, and similar patterns), while **you** still publish **articles** as the main content type.
+
+**Acquisition vs home base:** Today your **main social account for promotion** is **Facebook**. The plan is to **promote posts on Facebook** and send people to the **blog**, where **conversation and engagement happen on your blog**, not on Facebook’s native engagement surface—so the blog UX should feel **familiar (Facebook-like)** even though content is article-centric for now.
+
+**Phase (now):** **Articles only** for what you publish (markdown in repo, dev-centric workflow below). Social-style **interaction features** are the product goal on top of that content model.
+
+**Audience and auth:** To **build an audience** you need to **know** who you’re reaching—not only anonymous traffic. **Auth** is how you **recognize the same person over time** (comments, follows, later likes, etc.) and avoid optimizing for **vanity metrics** alone. Trade-off: sign-in adds **friction**; default pattern is **anonymous read** + **auth for actions** (or progressive profiling) so discovery isn’t blocked.
+
+**Relationship to PT Bangkit:** The company’s **main product** is **Ojekku** (**ojekku.com**). This blog is the founder’s **personal presence** and **distribution** channel—not the PT flagship product, unless you explicitly merge those stories later (brand, content marketing, etc.).
+
+The feature list below is the **current technical direction**; it may evolve as scope grows.
+
+## Product direction (today)
 
 The goal of the project is to build a blog platform with the following features :
 
 - The content is stored in static md files in the repo itself
 - Multilingual (at least two : Indonesian and English)
 - Switchable theme between dark and light
-- Anonymous user allowed to read, authenticated user can comment (so yes there will be auth and comment)
+- Anonymous user allowed to read, authenticated user can comment (so yes there will be auth and comment); extend toward **social-style engagement** (likes, sharing, etc.) aligned with the vision above—exact scope is decided incrementally.
 
 The blog is expected to be developer-centric, e.g :
 
