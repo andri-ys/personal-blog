@@ -1,0 +1,73 @@
+/**
+ * UI translations. Keep en and id side-by-side per key for easy translator review.
+ */
+
+export type Locale = "en" | "id";
+
+const blogTranslations = {
+  siteTitle: { en: "Astro Blog", id: "Blog Astro" },
+  headerTitle: { en: "Blog", id: "Blog" },
+  pageTitle: {
+    en: (page: number) => `Blog — Page ${page}`,
+    id: (page: number) => `Blog — Halaman ${page}`,
+  },
+} as const;
+
+const translations = {
+  previous: { en: "← Previous", id: "← Sebelumnya" },
+  next: { en: "Next →", id: "Selanjutnya →" },
+  backToBlog: { en: "← Back to Blog", id: "← Kembali ke Blog" },
+  themeDark: { en: "Dark", id: "Gelap" },
+  themeLight: { en: "Light", id: "Terang" },
+  searchLabel: { en: "Search", id: "Cari" },
+  searchPlaceholder: { en: "Search posts…", id: "Cari artikel…" },
+  searchButton: { en: "Search", id: "Cari" },
+  searchTitle: { en: "Search", id: "Pencarian" },
+  searchDescription: {
+    en: "Search across blog posts.",
+    id: "Cari di seluruh artikel blog.",
+  },
+  searchHint: {
+    en: "Search title, summary, tags, and content.",
+    id: "Cari judul, ringkasan, tag, dan isi.",
+  },
+  searchIndexUnavailable: {
+    en: "Search index is not available yet.",
+    id: "Index pencarian belum tersedia.",
+  },
+  pageOf: {
+    en: (n: number, total: number) => `Page ${n} of ${total}`,
+    id: (n: number, total: number) => `Halaman ${n} dari ${total}`,
+  },
+  minReadOne: { en: "1 min read", id: "1 menit baca" },
+  minRead: { en: "min read", id: "menit baca" },
+} as const;
+
+type StringKey = Exclude<keyof typeof translations, "pageOf">;
+
+export function t(key: "pageOf", locale: Locale): (n: number, total: number) => string;
+export function t(key: StringKey, locale: Locale): string;
+export function t(key: keyof typeof translations, locale: Locale): string | ((n: number, total: number) => string) {
+  const value = translations[key][locale];
+  return typeof value === "function" ? value : value;
+}
+
+export function tPageOf(n: number, total: number, locale: Locale): string {
+  return translations.pageOf[locale](n, total);
+}
+
+export function tBlogSiteTitle(locale: Locale): string {
+  return blogTranslations.siteTitle[locale];
+}
+
+export function tBlogHeaderTitle(locale: Locale): string {
+  return blogTranslations.headerTitle[locale];
+}
+
+export function tBlogPageTitle(page: number, locale: Locale): string {
+  return blogTranslations.pageTitle[locale](page);
+}
+
+export function tReadingTime(minutes: number, locale: Locale): string {
+  return minutes === 1 ? translations.minReadOne[locale] : `${minutes} ${translations.minRead[locale]}`;
+}

@@ -1,0 +1,239 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import { getBlogEntryId, parseBlogEntryId, type BlogData } from "../../../content.config";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Header from "../../../components/Header.astro";
+import CoverImage from "../../../components/CoverImage.astro";
+import { getReadingTimeMinutes, formatReadingTime } from "../../../lib/reading-time";
+import { t, tBlogHeaderTitle } from "../../../lib/translations";
+import { getAuthor } from "../../../lib/authors";
+import type { Locale } from "../../../lib/translations";
+
+export async function getStaticPaths() {
+  const entriesEn = await getCollection("blog", (e) => e.id.endsWith("--en"));
+  const entriesId = await getCollection("blog", (e) => e.id.endsWith("--id"));
+  const paths: { params: { locale: string; slug: string } }[] = [];
+  for (const entry of entriesEn) {
+    paths.push({ params: { locale: "en", slug: entry.id.replace(/--en$/, "") } });
+  }
+  for (const entry of entriesId) {
+    paths.push({ params: { locale: "id", slug: entry.id.replace(/--id$/, "") } });
+  }
+  return paths;
+}
+
+const LOCALES: Locale[] = ["en", "id"];
+
+const { locale, slug } = Astro.params as { locale: string; slug: string };
+if (!LOCALES.includes(locale as Locale)) return Astro.redirect("/id/");
+const lang = locale as Locale;
+const otherLocale = lang === "en" ? "id" : "en";
+
+if (!slug) return Astro.redirect(`/${lang}/`);
+
+const entry = await getEntry("blog", getBlogEntryId(slug, lang));
+if (!entry) return Astro.redirect(`/${lang}/`);
+
+const allEntries = await getCollection("blog");
+const sameLocaleEntries = allEntries
+  .filter((e) => e.id.endsWith(`--${lang}`))
+  .sort(
+    (a, b) =>
+      ((b.data as any).publishDate as Date).getTime() -
+      ((a.data as any).publishDate as Date).getTime()
+  );
+
+const currentIndex = sameLocaleEntries.findIndex((e) => e.id === entry.id);
+const newerEntry = currentIndex > 0 ? sameLocaleEntries[currentIndex - 1] : undefined;
+const olderEntry =
+  currentIndex >= 0 && currentIndex < sameLocaleEntries.length - 1
+    ? sameLocaleEntries[currentIndex + 1]
+    : undefined;
+
+const newerParsed = newerEntry ? parseBlogEntryId(newerEntry.id) : null;
+const olderParsed = olderEntry ? parseBlogEntryId(olderEntry.id) : null;
+
+const newerSlug = newerParsed?.slug;
+const olderSlug = olderParsed?.slug;
+
+const { Content } = await render(entry as any);
+const data = entry.data as BlogData;
+const newerData = newerEntry ? (newerEntry.data as BlogData) : undefined;
+const olderData = olderEntry ? (olderEntry.data as BlogData) : undefined;
+const readingTime = getReadingTimeMinutes(entry.body ?? "");
+const dateLocale = lang === "en" ? "en-US" : "id-ID";
+const author = getAuthor(data.authorId);
+---
+
+<BaseLayout title={data.title} lang={lang} description={data.description}>
+  <Header lang={lang} title={tBlogHeaderTitle(lang)} currentUrl={Astro.url} />
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get("from");
+    const slugEl = document.getElementById("back-link")?.dataset.slug ?? "";
+    const anchor = slugEl ? `#post-${slugEl}` : "";
+    const pathname = window.location.pathname;
+    const base = pathname.startsWith("/id/") ? "/id" : "/en";
+    const backLink = document.getElementById("back-link") as HTMLAnchorElement | null;
+    if (backLink) {
+      if (from) {
+        const n = parseInt(from, 10);
+        backLink.href = n > 1 ? `${base}/page/${n}${anchor}` : `${base}/${anchor}`;
+      } else if (anchor) {
+        backLink.href = `${base}/${anchor}`;
+      } else {
+        backLink.href = base + "/";
+      }
+    }
+  </script>
+  <article class="leading-relaxed" data-pagefind-body>
+    <div data-pagefind-filter={`locale:${lang}`}></div>
+    <h1 class="mb-1 text-2xl font-semibold" data-pagefind-meta="title">
+      {data.title}
+    </h1>
+    <p class="mb-3 text-gray-600 dark:text-gray-400" data-pagefind-meta="description">
+      {data.description}
+    </p>
+    {author && (
+      <div class="mb-6 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+        <img
+          src={author.avatarUrl}
+          alt={author.name}
+          width="40"
+          height="40"
+          loading="lazy"
+          class="h-10 w-10 rounded-full object-cover"
+        />
+        <div>
+          <p class="font-semibold">
+            {author.name}
+          </p>
+          <p>
+            <time datetime={data.publishDate.toISOString()}>
+              {data.publishDate.toLocaleDateString(dateLocale, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </time>
+            {" · "}
+            <span>{formatReadingTime(readingTime, lang)}</span>
+          </p>
+        </div>
+      </div>
+    )}
+    {data.coverImage && (
+      <div class="mb-6">
+        <CoverImage
+          src={data.coverImage}
+          alt={data.title}
+          width={800}
+          height={400}
+          eager={true}
+          className="block h-auto w-full"
+        />
+      </div>
+    )}
+    <div class="mb-6" />
+    {data.tags && data.tags.length > 0 && (
+      <div class="sr-only" aria-hidden="true">
+        {data.tags.map((tag: string) => (
+          <span data-pagefind-filter="tag">{tag}</span>
+        ))}
+      </div>
+    )}
+    <div class="space-y-4 [&_a]:text-gray-700 [&_a]:underline dark:[&_a]:text-gray-300 [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-semibold [&_p]:leading-relaxed">
+      <Content />
+    </div>
+  </article>
+  <div class="mt-8 border-t border-gray-200 dark:border-gray-700" />
+  {(newerSlug || olderSlug) && (
+    <nav class="mt-8 space-y-2 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+      <div class="grid grid-cols-3 items-center gap-2">
+        <div class="flex justify-start">
+          {newerSlug && (
+            <a
+              href={`/${lang}/blog/${newerSlug}`}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+            <span class="sr-only">{t("previous", lang)}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </a>
+        )}
+        </div>
+        <div class="flex justify-center">
+          <a
+            href={`/${lang}/`}
+            id="back-link"
+            data-slug={slug}
+            class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+          >
+          <span class="sr-only">{t("backToBlog", lang)}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 11L12 3l9 8" />
+            <path d="M5 10v10h14V10" />
+          </svg>
+        </a>
+        </div>
+        <div class="flex justify-end">
+          {olderSlug && olderEntry && (
+            <a
+              href={`/${lang}/blog/${olderSlug}`}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+            >
+            <span class="sr-only">{t("next", lang)}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </a>
+        )}
+        </div>
+      </div>
+      {(newerSlug || olderSlug) && (
+        <div class="flex items-start justify-between gap-2 text-[0.7rem] text-gray-500 dark:text-gray-400 sm:text-xs">
+          <span class="inline-block max-w-[45%] truncate">
+            {newerData?.title}
+          </span>
+          <span class="inline-block max-w-[45%] truncate text-right">
+            {olderData?.title}
+          </span>
+        </div>
+      )}
+    </nav>
+  )}
+</BaseLayout>

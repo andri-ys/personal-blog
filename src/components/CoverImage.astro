@@ -1,0 +1,52 @@
+---
+import { Image } from "astro:assets";
+
+export interface Props {
+  src?: string;
+  alt?: string;
+  className?: string;
+  width?: number;
+  height?: number;
+  eager?: boolean;
+}
+
+const {
+  src,
+  alt = "",
+  className = "",
+  width = 800,
+  height = 400,
+  eager = false,
+} = Astro.props;
+
+if (!src) {
+  return;
+}
+
+const loading = eager ? "eager" : "lazy";
+const decoding = eager ? "sync" : "async";
+const isRemote = src.startsWith("http://") || src.startsWith("https://");
+---
+
+{isRemote ? (
+  <img
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    decoding={decoding}
+    class={className}
+  />
+) : (
+  <Image
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    decoding={decoding}
+    class={className}
+  />
+)}
+

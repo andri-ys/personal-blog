@@ -1,0 +1,28 @@
+---
+export interface Props {
+  /** When false, renders nothing. */
+  show?: boolean;
+}
+
+const { show = true } = Astro.props;
+---
+
+{show && (
+  <nav
+    class="mt-8 space-y-2 text-xs text-gray-600 dark:text-gray-400 sm:text-sm"
+    data-testid="pagination"
+  >
+    <div class="grid grid-cols-3 items-center gap-2" data-testid="pagination-grid">
+      <div class="flex justify-start" data-testid="pagination-prev">
+        <slot name="prev" />
+      </div>
+      <div class="flex justify-center" data-testid="pagination-center">
+        <slot />
+      </div>
+      <div class="flex justify-end" data-testid="pagination-next">
+        <slot name="next" />
+      </div>
+    </div>
+  </nav>
+)}
+
